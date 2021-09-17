@@ -62,10 +62,12 @@ RUN pip install awscli-local
 # Install AWS CDK
 RUN npm install -g aws-cdk@next
 
+# Reference https://gist.github.com/kirtfitzpatrick/e7a7828e99bae609955f08b35fc2c8b1
+
 # Create Work Directory
 ENV AWS_CONFIG_FILE=/work/.aws/config
 ENV AWS_SHARED_CREDENTIALS_FILE=/work/.aws/credentials
-RUN mkdir -p /work/.aws
+RUN mkdir -p /work/.aws /work/aws_cdk
 
 # Clean apt-get cache
 RUN apt-get clean \

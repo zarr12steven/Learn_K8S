@@ -7,7 +7,7 @@
 
 # Set defaults AWSCLIv2_VERSION, if variable have be setting, will be replaced.
 ifndef AWSCLIv2_VERSION
-    override AWSCLIv2_VERSION=2.2.38
+    override AWSCLIv2_VERSION=2.2.39
 endif
 
 # Set defaults NODEJS_VERSION, if variable have be setting, will be replaced.
@@ -29,12 +29,12 @@ endif
 AWSCLIv2_LATEST=$(shell curl -s "https://api.github.com/repos/aws/aws-cli/tags" | grep 'name' | sed -E 's/.*"([^"]+)".*/\1/' | head -n 1 | cut -c 1-)
 
 .PHONY: build
-build: ## Build AWS CDK docker images from Dockerfile, defaults AWSCLIv2_VERSION=2.2.38, NODEJS_VERSION=v14.17.6, CDK_VERSION=2.0.0-rc.21
+build: ## Build AWS CDK docker images from Dockerfile, defaults AWSCLIv2_VERSION=2.2.39, NODEJS_VERSION=v14.17.6, CDK_VERSION=2.0.0-rc.21
 	@printf "\033[33m=========================%-2sBuild CDK Container, AWSCLIv2_VERSION=${AWSCLIv2_VERSION}, NODEJS_VERSION=${NODEJS_VERSION}%-2s==========================\033[0m\n"
 	@docker build --build-arg buildtime_AWSCLIv2_VERSION=$(AWSCLIv2_VERSION) --build-arg buildtime_NODEJS_VERSION=${NODEJS_VERSION} -t $(DOCKERHUB_ACCOUNT)/cdk:$(AWSCLIv2_VERSION) -f Dockerfile .
 
 .PHONY: tag
-tag: ## Tag latest for container image, defaults AWSCLIv2_VERSION=2.2.38
+tag: ## Tag latest for container image, defaults AWSCLIv2_VERSION=2.2.39
 ifeq ($(AWSCLIv2_VERSION),$(AWSCLIv2_LATEST))
 	@printf "\033[33m============================================%-2sTag $(AWSCLIv2_LATEST) to latest for AWS CDK container%-2s============================================\033[0m\n"
 	@docker tag $(DOCKERHUB_ACCOUNT)/cdk:$(AWSCLIv2_VERSION) $(DOCKERHUB_ACCOUNT)/cdk:latest
@@ -44,13 +44,13 @@ else ifeq ($(AWSCLIv2_VERSION),$(AWSCLIv2_VERSION))
 endif
 
 .PHONY: run
-run: ## Start running AWS CDK container, when you exit container, container will be delete, defaults AWSCLIv2_VERSION=2.2.38, NODEJS_VERSION=v14.17.6, CDK_VERSION=2.0.0-rc.21
+run: ## Start running AWS CDK container, when you exit container, container will be delete, defaults AWSCLIv2_VERSION=2.2.39, NODEJS_VERSION=v14.17.6, CDK_VERSION=2.0.0-rc.21
 ifeq ($(AWSCLIv2_VERSION),$(AWSCLIv2_LATEST))
 	@printf "\033[33m=%-2sStart Running AWS CDK Container, defaults AWSCLIv2_VERSION=${AWSCLIv2_VERSION}, NODEJS_VERSION=${NODEJS_VERSION}, CDK_VERSION=${CDK_VERSION}%-2s=\033[0m\n"
-	@docker run --name cdk_awscliv2_$(AWSCLIv2_LATEST) -d --volume "${shell PWD}/work:/work" -it $(DOCKERHUB_ACCOUNT)/cdk bash
+	@docker run --name cdk_awscliv2_$(AWSCLIv2_LATEST) -d --volume "${shell PWD}/work:/work" --volume "$(shell PWD)/work/aws_cdk:/work/aws_cdk" -it $(DOCKERHUB_ACCOUNT)/cdk bash
 else ifeq ($(AWSCLIv2_VERSION),$(AWSCLIv2_VERSION))
 	@printf "\033[33m=%-2sStart Running AWS CDK Container, defaults AWSCLIv2_VERSION=${AWSCLIv2_VERSION}, NODEJS_VERSION=${NODEJS_VERSION}, CDK_VERSION=${CDK_VERSION}%-2s=\033[0m\n"
-	@docker run --name cdk_awscliv2_$(AWSCLIv2_VERSION) -d --volume "${shell PWD}/work:/work" -it $(DOCKERHUB_ACCOUNT)/cdk:$(AWSCLIv2_VERSION) bash
+	@docker run --name cdk_awscliv2_$(AWSCLIv2_VERSION) -d --volume "${shell PWD}/work:/work" --volume "$(shell PWD)/work/aws_cdk:/work/aws_cdk" -it $(DOCKERHUB_ACCOUNT)/cdk:$(AWSCLIv2_VERSION) bash
 endif
 
 .PHONY: help
